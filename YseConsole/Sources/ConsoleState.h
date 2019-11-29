@@ -17,3 +17,15 @@ public:
 	/* Interface to update console state */
 	virtual void Update() = 0;
 };
+
+
+
+class MainStauts : public IConsoleStatus
+{
+public:
+	virtual void Update() override;
+
+private:
+	void PrintMenu();
+};
+

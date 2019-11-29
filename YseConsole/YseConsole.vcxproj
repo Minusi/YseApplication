@@ -19,10 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ConsoleState.cpp" />
+    <ClCompile Include="Sources\Console.cpp" />
+    <ClCompile Include="Sources\ConsoleState.cpp" />
     <ClCompile Include="Sources\YseConsole.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="Sources\Console.h" />
     <ClInclude Include="Sources\ConsoleState.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -126,7 +129,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Minusi\Desktop\General\LIbrary\yse\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Minusi\Desktop\General\Study\YseApplication\YseConsole\Sources;C:\Users\Minusi\Desktop\General\LIbrary\yse\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -171,7 +174,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Minusi\Desktop\General\LIbrary\yse\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Minusi\Desktop\General\Study\YseApplication\YseConsole\Sources;C:\Users\Minusi\Desktop\General\LIbrary\yse\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -329,3 +329,10 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 YseConsole/YSElog.txt
+
+############################################33
+
+# Custom Binaries Directory
+YseConsole/Binaries/
+YseConsole/Intermediates/
+
