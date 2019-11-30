@@ -15,18 +15,18 @@ using namespace std;
 class Console;
 
 /*
- *	YseConsole is represented for Console Application. Main purpose of
+ *	YseProgram is represented for Console Application. Main purpose of
  *	class is abstraction about 'console program'.
  */
-class YseConsole
+class YseProgram
 {
 public:
 	/* Default Constructor */
-	YseConsole() = default;
+	YseProgram() = default;
 
-	YseConsole(const YseConsole& other) = delete;
-	YseConsole(const YseConsole&& other) = delete;
-	const YseConsole& operator=(const YseConsole& other) = delete;
+	YseProgram(const YseProgram& other) = delete;
+	YseProgram(const YseProgram&& other) = delete;
+	const YseProgram& operator=(const YseProgram& other) = delete;
 
 	/* Start Yse console application. Used for Application Main Entry. */
 	void Start();
@@ -50,12 +50,12 @@ private:
 
 
 
-void YseConsole::Start()
+void YseProgram::Start()
 {
 	Init();
 }
 
-void YseConsole::Init()
+void YseProgram::Init()
 {
 	/* Initialize YSE System */
 	YSE::System().init();
@@ -73,12 +73,11 @@ void YseConsole::Init()
 	pMainLoop = unique_ptr<MainLoop>(new MainLoop());
 
 
-
 	/* start loop */
 	pMainLoop->Loop();
 }
 
-void YseConsole::Close()
+void YseProgram::Close()
 {
 	/* Close the Yse System */
 	YSE::System().close();
@@ -92,8 +91,8 @@ void YseConsole::Close()
 /* console application's main entry point */
 int main()
 {
-	YseConsole sYseConsole;
-	sYseConsole.Start();
+	unique_ptr<YseProgram> pYseConsole(new YseProgram());
+	pYseConsole->Start();
 
 	return 0;
 }

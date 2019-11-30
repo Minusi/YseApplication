@@ -1,3 +1,7 @@
+#ifdef _DEBUG
+#include <iostream>
+#endif // DEBUG
+
 #include "MainLoop.h"
 #include <cfloat>
 #include <thread>
@@ -5,6 +9,7 @@
 #include "Configuration.h"
 
 using namespace std;
+
 
 
 
@@ -16,8 +21,7 @@ void MainLoop::Loop()
 	while (bLooping)
 	{
 		chrono::time_point TP1 = chrono::high_resolution_clock::now();
-		this_thread::sleep_for(std::chrono::milliseconds(100));
-		// TODO : insert Update Function
+		Update((FramePeriod * TickCount) / 1000000);
 		chrono::time_point TP2 = chrono::high_resolution_clock::now();
 
 		long long ElapsedTime = chrono::duration_cast<std::chrono::microseconds>(TP2 - TP1).count();
@@ -35,6 +39,9 @@ void MainLoop::SetFrameRate(float InFrameRate)
 
 void MainLoop::Update(float DeltaTime)
 {
+#ifdef _DEBUG
+	cout << "DeltaTime : " << DeltaTime << "\n";
+#endif // _DEBUG
 
 }
 

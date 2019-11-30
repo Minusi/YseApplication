@@ -5,6 +5,22 @@
 
 
 /*
+ *	UpdateEntity is interface for updating in main loop.
+ *	All entity want to update must inherit this interface
+ */
+class IUpdateEntity
+{
+public:
+	/* updates entity. return true if entity want to 
+	update next frame, otherwise false */
+	virtual bool Update() = 0;
+};
+
+
+
+
+
+/*
  *	MainLoop represents Application's loop.
  *	it supports variable frame rate.
  */
@@ -19,7 +35,7 @@ public:
 		SetFramePeriod();
 	}
 
-	/* Start Loop */
+	/* start apllication main loop */
 	void Loop();
 
 	/* setting frame rate */

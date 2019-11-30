@@ -10,4 +10,7 @@ namespace APP
 	const int DefaultConsoleWidth = 400;
 	const int DefaultConsoleHeight = 400;
 	const float DefaultFrameRate = 60.0f;
+
+	/* Render Configuration */
+	const char DefaultDecoration = '=';
 };
