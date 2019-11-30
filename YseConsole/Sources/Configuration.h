@@ -7,6 +7,7 @@
 namespace APP
 {
 	/* Console Configuration */
-	const int ConsoleDefaultWidth = 400;
-	const int ConsoleDefaultHeight = 400;
+	const int DefaultConsoleWidth = 400;
+	const int DefaultConsoleHeight = 400;
+	const float DefaultFrameRate = 60.0f;
 };

@@ -10,8 +10,6 @@ Console::Console(int Left, int Top, int Width, int Height) : HandleConsole(GetCo
 	
 	/* remove console scroll bar */
 	ShowScrollBar(HandleConsole, SB_BOTH, FALSE);
-
-	
 }
 
 void Console::SetWindowSize(int Left, int Top, int Width, int Height)

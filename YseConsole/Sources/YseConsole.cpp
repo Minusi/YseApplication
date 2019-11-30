@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <thread>
+#include <memory>
 #include "yse.hpp"
 
 #include <Windows.h>
@@ -7,6 +8,7 @@
 
 #include "Console.h"
 #include "Configuration.h"
+#include "MainLoop.h"
 
 
 using namespace std;
@@ -20,9 +22,7 @@ class YseConsole
 {
 public:
 	/* Default Constructor */
-	YseConsole() : bMainLoop(true), mConsole(nullptr)
-	{
-	}
+	YseConsole() = default;
 
 	YseConsole(const YseConsole& other) = delete;
 	YseConsole(const YseConsole&& other) = delete;
@@ -35,26 +35,24 @@ private:
 	/* Initialize console application */
 	void Init();
 
-	/* Main loop */
-	void Loop();
-
 	/* Clean up consle application and exit. */
 	void Close();
 
 
 
 private:
-	Console* mConsole;
+	/* Console Object */
+	unique_ptr<Console> pConsole;
 
-	/* flag for checking main loop can still loop */
-	bool bMainLoop;
-
+	/* supports Loop */
+	unique_ptr<MainLoop> pMainLoop;
 };
+
+
 
 void YseConsole::Start()
 {
 	Init();
-	Loop();
 }
 
 void YseConsole::Init()
@@ -62,20 +60,22 @@ void YseConsole::Init()
 	/* Initialize YSE System */
 	YSE::System().init();
 
-	if (mConsole != nullptr)
-		return;
-
-
 	/* get window rect for relocation console(in center) */
 	RECT RectScreen;
 	GetWindowRect(GetDesktopWindow(), &RectScreen);
 
 	/* calculate console position */
-	int Left = ((RectScreen.right - RectScreen.left) - APP::ConsoleDefaultWidth) / 2;
-	int Top = ((RectScreen.bottom - RectScreen.top) - APP::ConsoleDefaultHeight) / 2;
+	int Left = ((RectScreen.right - RectScreen.left) - APP::DefaultConsoleWidth) / 2;
+	int Top = ((RectScreen.bottom - RectScreen.top) - APP::DefaultConsoleHeight) / 2;
 
-	/* initialize console */
-	mConsole = new Console(Left, Top, APP::ConsoleDefaultWidth, APP::ConsoleDefaultHeight);
+	/* initialize member variables */
+	pConsole = unique_ptr<Console>(new Console(Left, Top, APP::DefaultConsoleWidth, APP::DefaultConsoleHeight));
+	pMainLoop = unique_ptr<MainLoop>(new MainLoop());
+
+
+
+	/* start loop */
+	pMainLoop->Loop();
 }
 
 void YseConsole::Close()
@@ -88,19 +88,12 @@ void YseConsole::Close()
 
 
 
-void YseConsole::Loop()
-{
-	while (bMainLoop)
-	{
-	}
-
-	Close();
-}
 
 /* console application's main entry point */
 int main()
 {
 	YseConsole sYseConsole;
 	sYseConsole.Start();
+
 	return 0;
 }

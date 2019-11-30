@@ -20,7 +20,7 @@ public:
 	void SetWindowSize(int Left, int Top, int Width, int Height);
 
 private:
+	/* handle to console */
 	HWND HandleConsole;
-	
 };
 

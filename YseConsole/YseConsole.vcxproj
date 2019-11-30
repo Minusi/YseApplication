@@ -21,12 +21,14 @@
   <ItemGroup>
     <ClCompile Include="Sources\Console.cpp" />
     <ClCompile Include="Sources\ConsoleState.cpp" />
+    <ClCompile Include="Sources\MainLoop.cpp" />
     <ClCompile Include="Sources\YseConsole.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="Sources\Console.h" />
     <ClInclude Include="Sources\ConsoleState.h" />
+    <ClInclude Include="Sources\MainLoop.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
