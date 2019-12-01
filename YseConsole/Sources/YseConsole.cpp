@@ -72,7 +72,6 @@ void YseProgram::Init()
 	pConsole = unique_ptr<Console>(new Console(Left, Top, APP::DefaultConsoleWidth, APP::DefaultConsoleHeight));
 	pMainLoop = unique_ptr<MainLoop>(new MainLoop());
 
-
 	/* start loop */
 	pMainLoop->Loop();
 }

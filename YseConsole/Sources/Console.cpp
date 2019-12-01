@@ -5,13 +5,14 @@
 
 void ConsoleRender::FillLine(char Character)
 {
+	/* return if ConsoleCols is not valid */
 	if (ConsoleCols <= 0)
 		return;
 
+	/* fill string and print to console output */
 	string Content;
 	for (int i = 0; i < ConsoleCols; ++i)
 		Content += Character;
-	
 	cout << Content << "\n";
 }
 
@@ -41,6 +42,10 @@ void ConsoleRender::CalculateAlignment(string Text, char Decoration, unsigned in
 	/* Decoration Text. contains 'Decoration' chracter * NumDeco */
 	string DecoText;
 	bool bDecoEnable;
+
+	/* load default decoration if param is non-valid and defulat is valid */
+	if (Decoration == -1 && DefaultDecoration != -1)
+		Decoration = DefaultDecoration;
 
 	/* return Text if not use decoration */
 	if (Decoration == -1 || NumDeco == 0)
@@ -119,7 +124,26 @@ void ConsoleRender::CalculateAlignment(string Text, char Decoration, unsigned in
 	}
 }
 
-bool ConsoleRender::Update()
+void ConsoleRender::SetDefaultDecoration(char InChanged)
+{
+	/* return if changed decoration is not valid */
+	if (InChanged < 0)
+		return;
+
+	DefaultDecoration = InChanged;
+}
+
+void ConsoleRender::UpdateConsoleSize(SHORT InCols, SHORT InLines)
+{
+	/* return if params are not valid */
+	if (InCols <= 0 || InLines <= 0)
+		return;
+
+	ConsoleCols = InCols;
+	ConsoleLines = InLines;
+}
+
+bool ConsoleRender::Update(float DeltaTime)
 {
 	return false;
 }

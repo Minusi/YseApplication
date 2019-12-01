@@ -3,6 +3,7 @@
 #include <utility>
 #include <memory>
 #include <string>
+
 #include "Configuration.h"
 #include "MainLoop.h"
 
@@ -21,7 +22,7 @@ public:
 	{ }
 
 	/* fill line with specified Character */
-	void FillLine(char Character);
+	void FillLine(char Character = ' ');
 
 	/* align text to left alignment 
 	 * - Text : text to output console 
@@ -42,9 +43,14 @@ private:
 	};
 	/* internal function for calculate text alignment */
 	void CalculateAlignment(string Text, char Decoration, unsigned int NumDeco, ETextAlignment Alignment);
+
 public:
+	/* setter function */
+	void SetDefaultDecoration(char InChanged);
+	void UpdateConsoleSize(SHORT InCols, SHORT InLines);
+
 	/* overrides from IUpdateEntity */
-	virtual bool Update() override;
+	virtual bool Update(float DeltaTime) override;
 
 	
 
@@ -115,6 +121,6 @@ private:
 	/* console lines */
 	SHORT Lines;
 
-public:
+	/* console render obejct based on text interface */
 	std::unique_ptr<ConsoleRender> pConsoleRender;
 };
