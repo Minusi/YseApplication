@@ -1,9 +1,7 @@
 #pragma once
-#include <chrono>
 #include <map>
+#include <memory>
 #include "Configuration.h"
-
-using namespace std;
 
 
 
@@ -32,6 +30,7 @@ class UpdateDelegate
 public:
 	/* default constructor */
 	UpdateDelegate() = default;
+	~UpdateDelegate() = default;
 
 	/* register param's update function to delegate 
 	 * class type must be derived from IUpdateEntity 
@@ -47,7 +46,7 @@ public:
 	void Broadcast(float DeltaTime);
 
 private:
-	map<long long, IUpdateEntity*> Delegate;
+	std::map<long long, IUpdateEntity*> Delegate;
 };
 
 
@@ -61,14 +60,9 @@ private:
 class MainLoop final
 {
 public:
-	/* default constructor */
-	MainLoop()
-	: bLooping(true)
-	, FrameRate(APP::DefaultFrameRate)
-	, pUpdateDelegate(unique_ptr<UpdateDelegate>(new UpdateDelegate()))
-	{
-		SetFramePeriod();
-	}
+	/* constructor and destructor */
+	MainLoop();
+	~MainLoop() = default;
 
 	/* start apllication main loop */
 	void Loop();
@@ -86,6 +80,13 @@ private:
 	/* set frame period */
 	void SetFramePeriod();
 
+public:
+	/* getter function */
+	inline UpdateDelegate* OnUpdateDelegate() const
+	{
+		return pUpdateDelegate.get();
+	}
+
 
 
 private:
@@ -100,5 +101,5 @@ private:
 
 private:
 	/* update delegate */
-	unique_ptr<UpdateDelegate> pUpdateDelegate;
+	std::unique_ptr<UpdateDelegate> pUpdateDelegate;
 };

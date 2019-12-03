@@ -1,57 +1,50 @@
-﻿#include <iostream>
+﻿#include "YseConsole.h"
+
+#include <iostream>
 #include <thread>
-#include <memory>
 #include "yse.hpp"
 
-#include <Windows.h>
 #include <wtypes.h>
+#include <Windows.h>
+#include <cstdlib>
 
-#include "Console.h"
 #include "Configuration.h"
+#include "Console.h"
 #include "MainLoop.h"
-
+#include "ProgramState.h"
 
 using namespace std;
-class Console;
 
-/*
- *	YseProgram is represented for Console Application. Main purpose of
- *	class is abstraction about 'console program'.
- */
-class YseProgram
+
+/**************************************************
+ *               global variables                 *
+ **************************************************/
+YseProgram* gYseProgram = new YseProgram();
+/**************************************************
+ *               global variables                 *
+ **************************************************/
+
+
+
+
+
+YseProgram* YseProgram::ValidateProgram(YseProgram* InProgram)
 {
-public:
-	/* Default Constructor */
-	YseProgram() = default;
+	/* exit if program is not valid */
+	if (InProgram == nullptr)
+		exit(EXIT_FAILURE);
 
-	YseProgram(const YseProgram& other) = delete;
-	YseProgram(const YseProgram&& other) = delete;
-	const YseProgram& operator=(const YseProgram& other) = delete;
-
-	/* Start Yse console application. Used for Application Main Entry. */
-	void Start();
-
-private:
-	/* Initialize console application */
-	void Init();
-
-	/* Clean up consle application and exit. */
-	void Close();
-
-
-
-private:
-	/* Console Object */
-	unique_ptr<Console> pConsole;
-
-	/* supports Loop */
-	unique_ptr<MainLoop> pMainLoop;
-};
-
-
+	return InProgram;
+}
 
 void YseProgram::Start()
 {
+	/* escape if program is already initialized */
+	if (bProgramInit == true)
+		return;
+
+	/* set init flag and initialize program */
+	bProgramInit = true;
 	Init();
 }
 
@@ -60,20 +53,25 @@ void YseProgram::Init()
 	/* Initialize YSE System */
 	YSE::System().init();
 
-	/* get window rect for relocation console(in center) */
-	RECT RectScreen;
-	GetWindowRect(GetDesktopWindow(), &RectScreen);
+	{
+		/* get window rect for relocation console(in center) */
+		RECT RectScreen;
+		GetWindowRect(GetDesktopWindow(), &RectScreen);
 
-	/* calculate console position */
-	int Left = ((RectScreen.right - RectScreen.left) - APP::DefaultConsoleWidth) / 2;
-	int Top = ((RectScreen.bottom - RectScreen.top) - APP::DefaultConsoleHeight) / 2;
+		/* calculate console position */
+		int Left = ((RectScreen.right - RectScreen.left) - APP::DefaultConsoleWidth) / 2;
+		int Top = ((RectScreen.bottom - RectScreen.top) - APP::DefaultConsoleHeight) / 2;
+		uConsole = unique_ptr<Console>(new Console(Left, Top, APP::DefaultConsoleWidth, APP::DefaultConsoleHeight));
+	}
 
-	/* initialize member variables */
-	pConsole = unique_ptr<Console>(new Console(Left, Top, APP::DefaultConsoleWidth, APP::DefaultConsoleHeight));
-	pMainLoop = unique_ptr<MainLoop>(new MainLoop());
+	/* Initialize others */
+	{
+		uMainLoop = unique_ptr<MainLoop>(new MainLoop());
+		uStateManager = unique_ptr<StateManager>(new StateManager());
+	}
 
 	/* start loop */
-	pMainLoop->Loop();
+	uMainLoop->Loop();
 }
 
 void YseProgram::Close()
@@ -84,14 +82,63 @@ void YseProgram::Close()
 
 
 
+UpdateDelegate* YseProgram::OnUpdateDelegate() const
+{
+	/* get Mainloop and check validation */
+	MainLoop* Loop = uMainLoop.get();
+	if (Loop == nullptr)
+		return nullptr;
+	
+	return Loop->OnUpdateDelegate();
+}
+
+ConsoleRender* YseProgram::GetConsoleRender() const
+{
+	/* return null if console is not valid */
+	Console* pConsole = uConsole.get();
+	if (pConsole == nullptr)
+		return nullptr;
+
+	return pConsole->GetConsoleRender();
+}
+
+Console* YseProgram::GetConsole() const
+{
+	return uConsole.get();
+}
+
+
+
 
 
 
 /* console application's main entry point */
 int main()
 {
-	unique_ptr<YseProgram> pYseConsole(new YseProgram());
-	pYseConsole->Start();
+	//STARTUPINFO StartupInfo = { 0 };
+	//PROCESS_INFORMATION ProcessInfo;
 
+	//StartupInfo.cb = sizeof(StartupInfo);
+
+	//if (CreateProcess
+	//(
+	//	NULL,
+	//	APP::DEBUG::Command,
+	//	NULL,
+	//	NULL,
+	//	false,
+	//	CREATE_NEW_CONSOLE,
+	//	NULL,
+	//	NULL,
+	//	&StartupInfo,
+	//	&ProcessInfo
+	//) == false)
+	//{
+	//	cout << "false\n";
+	//}
+
+		
+	gYseProgram->Start();
+	delete(gYseProgram);
 	return 0;
 }

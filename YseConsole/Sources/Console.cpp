@@ -1,20 +1,87 @@
 #include "Console.h"
 #include <iostream>
 
+using namespace std;
 
 
-void ConsoleRender::FillLine(char Character)
+
+ConsoleRender::~ConsoleRender() = default;
+/* initializes Line to "Lines - 1" because i want to last line make empty */
+ConsoleRender::ConsoleRender(SHORT InCols, SHORT InLines, char InDecoration)
+	: ConsoleCols(InCols)
+	, ConsoleLines(InLines - 1)
+	, CurrentLines(0)
+	, DefaultDecoration(InDecoration)
+{
+}
+
+void ConsoleRender::FillCharacter(char Character)
+{
+	FillLine(Character);
+}
+
+void ConsoleRender::FillDecoration(char Decoration)
+{
+	FillLine(Decoration);
+}
+
+void ConsoleRender::FillBlankLines(char Decoration, unsigned int NumDeco, bool bIncludeBottom)
+{
+	/* escape if ConsoleLines is not valid */
+	if (ConsoleLines <= 0)
+		return;
+
+	if (CurrentLines >= ConsoleLines)
+		return;
+
+	int TotalFillLines = ConsoleLines - CurrentLines - 1;
+	TotalFillLines += bIncludeBottom ? 1 : 0;
+
+	string LineContent;
+	if (Decoration < 0 || NumDeco == 0)
+	{
+		for (int i = 0; i < TotalFillLines; ++i)
+			LineContent += '\n';
+
+		cout << LineContent << "\n";
+	}
+	else
+	{
+		int NumTextPerLine = ConsoleCols - (NumDeco * 2);
+
+		for (unsigned int i = 0; i < NumDeco; ++i)
+			LineContent += Decoration;
+		for (unsigned int i = 0; i < NumTextPerLine; ++i)
+			LineContent += ' ';
+		for (unsigned int i = 0; i < NumDeco; ++i)
+			LineContent += Decoration;
+
+		for (int i = 0; i < TotalFillLines; ++i)
+			cout << LineContent << "\n";
+	}
+
+	CurrentLines += TotalFillLines;
+}
+
+void ConsoleRender::FillLine(char Target)
 {
 	/* return if ConsoleCols is not valid */
 	if (ConsoleCols <= 0)
 		return;
 
+	if (CurrentLines >= ConsoleLines)
+		return;
+
 	/* fill string and print to console output */
 	string Content;
 	for (int i = 0; i < ConsoleCols; ++i)
-		Content += Character;
+		Content += Target;
 	cout << Content << "\n";
+
+	CurrentLines++;
 }
+
+
 
 void ConsoleRender::LeftAlignment(string Text, char Decoration, unsigned int NumDeco)
 {
@@ -65,13 +132,13 @@ void ConsoleRender::CalculateAlignment(string Text, char Decoration, unsigned in
 
 
 	/* calculate properties to write */
-	size_t NumLines = (((Text.length() - 1) / ConsoleCols + 1) * NumDecoText
-		+ Text.length() - 1) / ConsoleCols + 1;
+	SHORT NumRequiredLines = (SHORT)((((Text.length() - 1) / ConsoleCols + 1) * NumDecoText
+		+ Text.length() - 1) / ConsoleCols + 1);
 	int NumTextPerLine = ConsoleCols - NumDecoText;
 
 	/* print text with left alignment */
 	size_t strIdx = 0;
-	for (int i = 0; i < NumLines; i = ++i, strIdx += NumTextPerLine)
+	for (int i = 0; i < NumRequiredLines; i = ++i, strIdx += NumTextPerLine)
 	{
 		if (strIdx < Text.length() + 1)
 		{
@@ -122,6 +189,8 @@ void ConsoleRender::CalculateAlignment(string Text, char Decoration, unsigned in
 			}
 		}
 	}
+
+	CurrentLines += NumRequiredLines;
 }
 
 void ConsoleRender::SetDefaultDecoration(char InChanged)
@@ -145,6 +214,7 @@ void ConsoleRender::UpdateConsoleSize(SHORT InCols, SHORT InLines)
 
 bool ConsoleRender::Update(float DeltaTime)
 {
+	CurrentLines = 0;
 	return false;
 }
 
@@ -156,27 +226,45 @@ Console::Console(int Left, int Top, int Width, int Height)
 	: ConsoleWHandle(GetConsoleWindow())
 	, ConsoleHandle(GetStdHandle(STD_OUTPUT_HANDLE))
 {
-	/* deactive sync with c stdio library for performance */
+	/* deactives sync with c stdio library for performance */
 	ios::sync_with_stdio(false);
 
-
-
-	/* get console screen buffer's informations and initialize class members */
-	CONSOLE_SCREEN_BUFFER_INFO ScreenInfo;
-	GetConsoleScreenBufferInfo(ConsoleHandle, &ScreenInfo);
-	Cols = ScreenInfo.srWindow.Right - ScreenInfo.srWindow.Left + 1;
-	Lines = ScreenInfo.srWindow.Bottom - ScreenInfo.srWindow.Top + 1;
-
-	/* initialize ConsoleRender */
-	pConsoleRender = std::unique_ptr<ConsoleRender>(new ConsoleRender(Cols, Lines));
-
-	/* configure console window size */
+	/* configures console properties */
+	SetConsoleTitle(APP::DefaultConsoleTitle.c_str());
+	SetWindowLong
+	(
+		ConsoleWHandle,
+		GWL_STYLE,
+		GetWindowLong(ConsoleWHandle, GWL_STYLE)
+		& ~WS_MAXIMIZEBOX
+		& ~WS_SIZEBOX
+	);
 	SetWindowSize(Left, Top, Width, Height);
 
+	/* initializes using CONOSOLE_SCREEN_BUFFER_INFO */
+	CONSOLE_SCREEN_BUFFER_INFOEX ScreenInfoEX;
+	ScreenInfoEX.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
+	GetConsoleScreenBufferInfoEx(ConsoleHandle, &ScreenInfoEX);
+	Cols = ScreenInfoEX.srWindow.Right - ScreenInfoEX.srWindow.Left + 1;
+	Lines = ScreenInfoEX.srWindow.Bottom - ScreenInfoEX.srWindow.Top + 1;
 	
-	/* remove console scroll bar */
-	ShowScrollBar(ConsoleWHandle, SB_BOTH, FALSE);
+	ScreenInfoEX.dwSize = { Cols, Lines };
+	ScreenInfoEX.srWindow = { 0,0, Cols, Lines };
+	ScreenInfoEX.dwMaximumWindowSize = { Cols, Lines };
+	ScreenInfoEX.bFullscreenSupported = false;
+	SetConsoleScreenBufferInfoEx(ConsoleHandle, &ScreenInfoEX);
+
+	DWORD Mode;
+	GetConsoleMode(ConsoleHandle, &Mode);
+	Mode &= ~ENABLE_WRAP_AT_EOL_OUTPUT;
+	SetConsoleMode(ConsoleHandle, Mode);
+
+
+	/* initialize ConsoleRender.*/
+	uConsoleRender = std::unique_ptr<ConsoleRender>(new ConsoleRender(Cols, Lines));
 }
+
+
 
 void Console::SetWindowSize(int Left, int Top, int Width, int Height)
 {

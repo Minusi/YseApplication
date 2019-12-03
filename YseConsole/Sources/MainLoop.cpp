@@ -3,6 +3,7 @@
 #endif // DEBUG
 
 #include "MainLoop.h"
+#include <chrono>
 #include <cfloat>
 #include <thread>
 
@@ -52,6 +53,14 @@ void UpdateDelegate::Broadcast(float DeltaTime)
 
 
 
+MainLoop::MainLoop()
+	: bLooping(true)
+	, FrameRate(APP::DefaultFrameRate)
+	, pUpdateDelegate(unique_ptr<UpdateDelegate>(new UpdateDelegate()))
+{
+	SetFramePeriod();
+}
+
 void MainLoop::Loop()
 {
 	/* variable tick count */
@@ -61,7 +70,8 @@ void MainLoop::Loop()
 	{
 		chrono::time_point TP1 = chrono::high_resolution_clock::now();
 		/* core function */
-		Update((float)(FramePeriod * TickCount) / 10e+5);
+		Update((float)(FramePeriod * TickCount) / (float)10e+5);
+
 		chrono::time_point TP2 = chrono::high_resolution_clock::now();
 
 		long long ElapsedTime = chrono::duration_cast<std::chrono::microseconds>(TP2 - TP1).count();
@@ -99,5 +109,5 @@ void MainLoop::SetFramePeriod()
 	if (Period < FLT_EPSILON)
 		SetFrameRate(APP::DefaultFrameRate);
 	else
-		FramePeriod = Period * 10e+5;
+		FramePeriod = (long long)(Period * (long long)10e+5);
 }

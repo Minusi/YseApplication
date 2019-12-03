@@ -7,34 +7,47 @@
 #include "Configuration.h"
 #include "MainLoop.h"
 
-using namespace std;
 
 
-
+/*
+ *	ConsoleRender has a responsibility for 
+ *	console rendering. all renderable(i.e. string)
+ *	must be rendered through this class.
+ */
 class ConsoleRender : public IUpdateEntity 
 {
 public:
+	/* constructor and destructor */
 	ConsoleRender() = delete;
-	ConsoleRender(SHORT InCols, SHORT InLines, char InDecoration = APP::DefaultDecoration)
-		: ConsoleCols(InCols)
-		, ConsoleLines(InLines)
-		, DefaultDecoration(InDecoration)
-	{ }
+	~ConsoleRender(); 
+	ConsoleRender(SHORT InCols, SHORT InLines, char InDecoration = APP::DefaultDecoration);
 
-	/* fill line with specified Character */
-	void FillLine(char Character = ' ');
+	/* fills line with specified Character */
+	void FillCharacter(char Character = ' ');
 
+	/* fills line with specified Decoration */
+	void FillDecoration(char Decoration = APP::DefaultDecoration);
+
+	/* fill remainder of console blank lines 
+	 * - Decoration : if -1, does not decorate 
+	 * - bIncludeBottom : if true, the bottommost will be also filled */
+	void FillBlankLines(char Decoration = APP::DefaultDecoration, unsigned int NumDeco = 1, bool bIncludeBottom = false);
+private:
+	/* internal function for fill one line */
+	void FillLine(char Target);
+
+public:
 	/* align text to left alignment 
 	 * - Text : text to output console 
-	 * - Decoration : decoration character. if -1, doesn't decorate
+	 * - Decoration : decoration character. if -1 and NumDeco is 0, doesn't decorate
 	 * - NumDeco : number of decoration character. if 0, doesn't decorate */
-	void LeftAlignment(string Text, char Decoration = -1, unsigned int NumDeco = 1);
+	void LeftAlignment(std::string Text, char Decoration = -1, unsigned int NumDeco = 1);
 
 	/* align text to center alignment */
-	void CenterAlignment(string Text, char Decoration = -1, unsigned int NumDeco = 1);
+	void CenterAlignment(std::string Text, char Decoration = -1, unsigned int NumDeco = 1);
 
 	/* align text to right alignment */
-	void RightAlignment(string Text, char Decoration = -1, unsigned int NumDeco = 1);
+	void RightAlignment(std::string Text, char Decoration = -1, unsigned int NumDeco = 1);
 
 private:
 	enum class ETextAlignment
@@ -42,7 +55,7 @@ private:
 		ALIGN_Left, ALIGN_Center, ALIGN_Right
 	};
 	/* internal function for calculate text alignment */
-	void CalculateAlignment(string Text, char Decoration, unsigned int NumDeco, ETextAlignment Alignment);
+	void CalculateAlignment(std::string Text, char Decoration, unsigned int NumDeco, ETextAlignment Alignment);
 
 public:
 	/* setter function */
@@ -62,6 +75,9 @@ private:
 	/* cached variable of console lines */
 	SHORT ConsoleLines;
 
+	/* current lines, should be less than ConsoleLines */
+	SHORT CurrentLines;
+
 	/* character for decorating console */
 	char DefaultDecoration;
 };
@@ -76,8 +92,9 @@ private:
 class Console
 {
 public:
-	/* default constructor */
+	/* constructor and destructor */
 	Console(int Left, int Top, int Width, int Height);
+	~Console() = default;
 
 	Console() = delete;
 	Console(const Console& Other) = delete;
@@ -103,7 +120,7 @@ public:
 	}
 	inline ConsoleRender* GetConsoleRender() const
 	{
-		return pConsoleRender.get();
+		return uConsoleRender.get();
 	}
 	
 
@@ -122,5 +139,8 @@ private:
 	SHORT Lines;
 
 	/* console render obejct based on text interface */
-	std::unique_ptr<ConsoleRender> pConsoleRender;
+	std::unique_ptr<ConsoleRender> uConsoleRender;
 };
+
+
+
